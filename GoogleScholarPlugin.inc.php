@@ -10,7 +10,7 @@
  * @class GoogleScholarPlugin
  * @ingroup plugins_generic_googleScholar
  *
- * @brief Inject Google Scholar meta tags into submission views to facilitate indexing.
+ * @brief Inject Google Meta meta tags into submission views to facilitate indexing.
  */
 
 import('lib.pkp.classes.plugins.GenericPlugin');
@@ -40,7 +40,7 @@ class GoogleScholarPlugin extends GenericPlugin {
 	}
 
 	/**
-	 * Inject Google Scholar metadata into submission landing page view
+	 * Inject Google Meta metadata into submission landing page view
 	 * @param $hookName string
 	 * @param $args array
 	 * @return boolean
@@ -60,8 +60,9 @@ class GoogleScholarPlugin extends GenericPlugin {
 		}
 		$requestArgs = $request->getRequestedArgs();
 		$context = $request->getContext();
+		$submissionLocale = $submission->getLocale();
 
-		// Only add Google Scholar metadata tags to the canonical URL for the latest version
+		// Only add Google Meta metadata tags to the canonical URL for the latest version
 		// See discussion: https://github.com/pkp/pkp-lib/issues/4870
 		if (count($requestArgs) > 1 && $requestArgs[1] === 'version') {
 			return;
@@ -72,8 +73,8 @@ class GoogleScholarPlugin extends GenericPlugin {
 
 		// Context identification
 		if ($applicationName == "ojs2"){
-			$templateMgr->addHeader('googleScholarJournalTitle', '<meta name="citation_journal_title" content="' . htmlspecialchars($context->getName($context->getPrimaryLocale())) . '"/>');
-			if (($abbreviation = $context->getData('abbreviation', $context->getPrimaryLocale())) || ($abbreviation = $context->getData('acronym', $context->getPrimaryLocale()))) {
+			$templateMgr->addHeader('googleScholarJournalTitle', '<meta name="citation_journal_title" content="' . htmlspecialchars($context->getName($submissionLocale)) . '"/>');
+			if (($abbreviation = $context->getData('abbreviation', $submissionLocale)) || ($abbreviation = $context->getData('acronym', $submissionLocale))) {
 				$templateMgr->addHeader('googleScholarJournalAbbrev', '<meta name="citation_journal_abbrev" content="' . htmlspecialchars($abbreviation) . '"/>');
 			}
 			if ( ($issn = $context->getData('onlineIssn')) || ($issn = $context->getData('printIssn')) || ($issn = $context->getData('issn'))) {
@@ -81,20 +82,20 @@ class GoogleScholarPlugin extends GenericPlugin {
 			}
 		}
 		if ($applicationName == "ops"){
-			$templateMgr->addHeader('googleScholarPublisher', '<meta name="citation_publisher" content="' . htmlspecialchars($context->getName($context->getPrimaryLocale())) . '"/>');
+			$templateMgr->addHeader('googleScholarPublisher', '<meta name="citation_publisher" content="' . htmlspecialchars($context->getName($submissionLocale)) . '"/>');
 		}
 
 
 		// Contributors
 		foreach ($submission->getAuthors() as $i => $author) {
-			$templateMgr->addHeader('googleScholarAuthor' . $i, '<meta name="citation_author" content="' . htmlspecialchars($author->getFullName(false)) .'"/>');
-			if ($affiliation = htmlspecialchars($author->getAffiliation($submission->getLocale()))) {
+			$templateMgr->addHeader('googleScholarAuthor' . $i, '<meta name="citation_author" content="' . htmlspecialchars($author->getGivenName($submissionLocale)) . ' ' . htmlspecialchars($author->getFamilyName($submissionLocale)) .'"/>');
+			if ($affiliation = htmlspecialchars($author->getAffiliation($submissionLocale))) {
 				$templateMgr->addHeader('googleScholarAuthor' . $i . 'Affiliation', '<meta name="citation_author_institution" content="' . $affiliation . '"/>');
 			}
 		}
 
 		// Submission title
-		$templateMgr->addHeader('googleScholarTitle', '<meta name="citation_title" content="' . htmlspecialchars($submission->getFullTitle($submission->getLocale())) . '"/>');
+		$templateMgr->addHeader('googleScholarTitle', '<meta name="citation_title" content="' . htmlspecialchars($submission->getFullTitle($submissionLocale)) . '"/>');
 		if ($locale = $submission->getLocale()) $templateMgr->addHeader('googleScholarLanguage', '<meta name="citation_language" content="' . htmlspecialchars(substr($locale, 0, 2)) . '"/>');
 
 		// Submission publish date and issue information
@@ -131,7 +132,7 @@ class GoogleScholarPlugin extends GenericPlugin {
 
 		$i=0;
 		$dao = DAORegistry::getDAO('SubmissionKeywordDAO');
-		$keywords = $dao->getKeywords($submission->getCurrentPublication()->getId(), array(AppLocale::getLocale()));
+		$keywords = $dao->getKeywords($submission->getCurrentPublication()->getId(), array($submissionLocale));
 		foreach ($keywords as $locale => $localeKeywords) {
 			foreach ($localeKeywords as $keyword) {
 				$templateMgr->addHeader('googleScholarKeyword' . $i++, '<meta name="citation_keywords" xml:lang="' . htmlspecialchars(substr($locale, 0, 2)) . '" content="' . htmlspecialchars($keyword) . '"/>');
@@ -161,7 +162,7 @@ class GoogleScholarPlugin extends GenericPlugin {
 		if (!empty($outputReferences)){
 			$i=0;
 			foreach ($outputReferences as $outputReference) {
-				$templateMgr->addHeader('googleScholarReference' . $i++, '<meta name="citation_reference" content="' . htmlspecialchars($outputReference) . '"/>');
+				$templateMgr->addHeader('googleScholarReference' . $i++, '<meta name="citation_reference" content="' . strip_tags($outputReference) . '"/>');
 			}
 		}
 

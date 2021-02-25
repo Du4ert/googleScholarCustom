@@ -12,7 +12,7 @@ msgstr ""
 "Language: \n"
 
 msgid "plugins.generic.googleScholar.name"
-msgstr "Модуль «Индексирование в Академии Google»"
+msgstr "Модуль «Индексирование в Академии Google (CUSTOM)»"
 
 msgid "plugins.generic.googleScholar.description"
-msgstr "Включает индексирование опубликованного контента в Академии Google."
+msgstr "Включает индексирование опубликованного контента в Академии Google (CUSTOM meta locale = article locale)."

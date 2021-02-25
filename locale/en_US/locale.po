@@ -12,7 +12,7 @@ msgstr ""
 "Language: \n"
 
 msgid "plugins.generic.googleScholar.name"
-msgstr "Google Scholar Indexing Plugin"
+msgstr "Google Scholar Indexing Plugin (CUSTOM)"
 
 msgid "plugins.generic.googleScholar.description"
-msgstr "This plugin enables indexing of published content in Google Scholar."
+msgstr "This plugin enables indexing of published content in Google Scholar (CUSTOM meta locale = article locale)."
